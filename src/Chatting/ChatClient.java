@@ -21,7 +21,6 @@ public class ChatClient {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             Scanner stdIn = new Scanner(System.in);
 
-            String isDuplicated = "false";
             while (true) {
                 System.out.print("사용할 닉네임을 입력하세요 : ");
                 String nickName = stdIn.nextLine();

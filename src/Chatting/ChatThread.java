@@ -11,13 +11,14 @@ import static Chatting.CommandSet.COMMAND_SET;
 
 public class ChatThread extends Thread {
     private final Socket socket;
-    private String nickName;    // ClientInfo의 nickName으로 사용해도 됨(수정사항이 많아서 보류)
-    private int roomNumber = 0; // 대기실 : 0, 나머지 방 : 1 이상
-    private final Map<String, PrintWriter> chatClients;
-    private final Map<Integer, List<ClientInfo>> chattingRooms;
     private BufferedReader in;
     private PrintWriter out;
+
+    private final Map<String, PrintWriter> chatClients;
+    private final Map<Integer, List<ClientInfo>> chattingRooms;
     private ClientInfo clientInfo;
+    private String nickName;    // ClientInfo의 nickName으로 사용해도 됨(수정사항이 많아서 보류)
+    private int roomNumber = 0; // 대기실 : 0, 나머지 방 : 1 이상
 
     public ChatThread(Socket socket, Map<String, PrintWriter> chatClients, Map<Integer, List<ClientInfo>> chattingRooms) {
         this.socket = socket;
@@ -28,7 +29,7 @@ public class ChatThread extends Thread {
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            // 닉네임 검사 및 추가
+            // 닉네임 검사 및 사용자 추가
             synchronized (chatClients) {
                 checkNickName();
             }
