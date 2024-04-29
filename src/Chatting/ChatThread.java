@@ -69,7 +69,7 @@ public class ChatThread extends Thread {
                 } else if (msg[0].equalsIgnoreCase("/create")) {
                     createRoom();
                 } else if (msg[0].equalsIgnoreCase("/join")) {
-                    joinRoom(msg[1]);
+                    joinRoom(line);
                 } else if (msg[0].equalsIgnoreCase("/users")) {
                     showAllUserList();
                 } else if (msg[0].equalsIgnoreCase("/roomusers")) {
@@ -181,13 +181,18 @@ public class ChatThread extends Thread {
     }
 
     // 기본 기능 - 방 입장(/join)
-    public void joinRoom(String num) {
-        int roomNum;
+    public void joinRoom(String line) {
+        String[] msg = line.split(" ", 2);
+        if(msg.length != 2) {
+            sendMsgToThisClient("잘못된 명령어입니다. 다시 입력해주세요.\n");
+            return;
+        }
 
+        int roomNum;
         try {    // 사용자가 방 번호를 다른 문자로 입력했을 시 오류 처리
-            roomNum = Integer.parseInt(num);
+            roomNum = Integer.parseInt(msg[1]);
         } catch (Exception e) {
-            System.out.println("방 번호를 정확히 입력해주세요.\n");
+            sendMsgToThisClient("방 번호를 정확히 입력해주세요.\n");
             return;
         }
 
@@ -282,7 +287,7 @@ public class ChatThread extends Thread {
                 sendMsgToThisClient("'" + to + "'님은 존재하지 않는 사용자입니다.\n");
             } else {
                 PrintWriter pw = chatClients.get(to);
-                pw.println("(귓속말) " + nickName + " : " + message + "\n");
+                pw.println("[귓속말] " + nickName + " : " + message + "\n");
             }
         }
     }
