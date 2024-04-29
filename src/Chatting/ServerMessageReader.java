@@ -18,7 +18,7 @@ public class ServerMessageReader implements Runnable {
                 System.out.println(serverLine); // 서버로부터 받은 메시지를 출력
             }
         } catch (IOException e) {
-            System.out.println("서버가 예기치 못한 오류로 종료되었습니다.");
+            System.out.println("서버가 종료되었습니다.");
         }
     }
 }
