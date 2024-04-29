@@ -21,10 +21,10 @@ public class ChatClient {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             Scanner stdIn = new Scanner(System.in);
 
-            String nickName;
+            String isDuplicated = "false";
             while (true) {
                 System.out.print("사용할 닉네임을 입력하세요 : ");
-                nickName = stdIn.nextLine();
+                String nickName = stdIn.nextLine();
 
                 out.println(nickName); // 서버에 닉네임을 전송
                 String response = in.readLine(); // 서버의 응답 받기
@@ -32,7 +32,7 @@ public class ChatClient {
                 if (response.equals("OK")) {
                     break;
                 } else {
-                    System.out.println(response);
+                    System.out.println("중복된 닉네임 이거나 '/'로 시작하는 닉네임입니다.");
                 }
             }
 

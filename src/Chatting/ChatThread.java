@@ -1,6 +1,7 @@
 package Chatting;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -28,17 +29,13 @@ public class ChatThread extends Thread {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             // 닉네임 검사 및 추가
-            do {
-                nickName = in.readLine();
-            } while (!checkNickName());
-
-            clientInfo = new ClientInfo(out, nickName);
-            addClientToLobby(); // 사용자를 로비에 배정
+            synchronized (chatClients) {
+                checkNickName();
+            }
 
             // 사용자 접속 확인 및 사용자의 IP 주소 출력
             System.out.println("'" + nickName + "'님이 접속했습니다.");
             System.out.println("'" + nickName + "'의 IP : " + socket.getLocalAddress().getHostAddress());
-            System.out.println(in);
 
         } catch (Exception e) {
             e.getStackTrace();
@@ -94,6 +91,25 @@ public class ChatThread extends Thread {
                 if (socket != null) socket.close();
             } catch (Exception e) {
                 e.getStackTrace();
+            }
+        }
+    }
+
+    // 추가 기능 - 닉네임 중복과 '/'로 시작하는지 확인 및 응답 로직
+    public void checkNickName() throws IOException {
+        while (true) {
+            nickName = in.readLine();
+
+            if(nickName.charAt(0) == '/'){
+                sendMsgToThisClient("NO");
+            } else if (!chatClients.containsKey(nickName)) {
+                sendMsgToThisClient("OK");
+                clientInfo = new ClientInfo(out, nickName);
+                chatClients.put(nickName, out);
+                addClientToLobby(); // 사용자를 로비에 배정
+                break;
+            } else {
+                sendMsgToThisClient("NO");
             }
         }
     }
@@ -183,7 +199,7 @@ public class ChatThread extends Thread {
     // 기본 기능 - 방 입장(/join)
     public void joinRoom(String line) {
         String[] msg = line.split(" ", 2);
-        if(msg.length != 2) {
+        if (msg.length != 2) {
             sendMsgToThisClient("잘못된 명령어입니다. 다시 입력해주세요.\n");
             return;
         }
@@ -337,23 +353,6 @@ public class ChatThread extends Thread {
         }
 
         System.out.println("'" + nickName + "'님이 연결을 끊었습니다.");
-    }
-
-    // 추가 기능 - 닉네임 중복과 '/'로 시작하는지 확인 및 응답 로직
-    public boolean checkNickName() {
-        synchronized (chatClients) {
-            if (nickName.charAt(0) == '/') {
-                sendMsgToThisClient("'/'로 시작하는 닉네임은 만들 수 없습니다. 다시 입력해주세요.\n");
-                return false;
-            } else if (chatClients.containsKey((nickName))) {
-                sendMsgToThisClient("이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.\n");
-                return false;
-            } else {
-                chatClients.put(this.nickName, out);
-                sendMsgToThisClient("OK");
-                return true;
-            }
-        }
     }
 
     // 추가 기능 - 사용자를 로비에 추가
